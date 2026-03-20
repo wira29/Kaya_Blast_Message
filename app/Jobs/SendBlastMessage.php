@@ -55,10 +55,12 @@ class SendBlastMessage implements ShouldQueue
         }
 
         try {
+            $phoneNumber = $this->phoneNumber;
+            $phoneNumber = preg_replace('/^0/', '62', $phoneNumber);
             $response = Http::post('https://api.watzap.id/v1/send_message', [
                 'api_key' => $apiKey,
                 'number_key' => $numberKey,
-                'phone_no' => $this->phoneNumber,
+                'phone_no' => $phoneNumber,
                 'message' => $blastHistory->message_content,
                 'wait_until_send' => '0',
             ]);
