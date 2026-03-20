@@ -327,6 +327,7 @@ class CampaignController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \Log::error($e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error membaca file: ' . $e->getMessage(),
