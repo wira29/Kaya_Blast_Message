@@ -11,6 +11,9 @@
             <a href="{{ route('campaigns.create') }}" class="btn btn-primary">
                 <i class="ti ti-plus"></i> Tambah Campaign
             </a>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importAffiliateModal">
+                <i class="ti ti-upload"></i> Import Affiliate
+            </button>
         </div>
     </div>
 
@@ -107,4 +110,111 @@
         </div>
     </div>
 </div>
+
+<!-- Import Affiliate Modal -->
+<div class="modal fade" id="importAffiliateModal" tabindex="-1" aria-labelledby="importAffiliateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importAffiliateModalLabel">Import Affiliate dari Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="importForm" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="campaignSelect" class="form-label">Pilih Campaign</label>
+                        <select class="form-select" id="campaignSelect" name="campaign_id" required>
+                            <option value="">-- Pilih Campaign --</option>
+                            @foreach($campaigns as $campaign)
+                                <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="excelFile" class="form-label">File Excel</label>
+                        <input type="file" class="form-control" id="excelFile" name="excel_file" accept=".xlsx,.xls,.csv" required>
+                        <small class="text-muted">Format: .xlsx, .xls, atau .csv dengan kolom: Nama dan Telepon</small>
+                    </div>
+
+                    <div class="alert alert-info mb-3">
+                        <h6 class="alert-heading">Format File Excel:</h6>
+                        <p class="mb-2">File harus memiliki 2 kolom dengan header:</p>
+                        <ul class="mb-0">
+                            <li><strong>Nama</strong> - Nama affiliate</li>
+                            <li><strong>Telepon</strong> - Nomor telepon (format: 62812345678)</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <a href="{{ route('campaigns.download-template') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="ti ti-download"></i> Download Template Excel
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="submitImport">
+                    <i class="ti ti-upload"></i> Import
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('submitImport').addEventListener('click', function() {
+    const form = document.getElementById('importForm');
+    const formData = new FormData(form);
+    const campaignId = document.getElementById('campaignSelect').value;
+    const excelFile = document.getElementById('excelFile').files[0];
+
+    if (!campaignId) {
+        alert('Silakan pilih campaign terlebih dahulu');
+        return;
+    }
+
+    if (!excelFile) {
+        alert('Silakan pilih file Excel terlebih dahulu');
+        return;
+    }
+
+    const submitBtn = document.getElementById('submitImport');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="ti ti-loader"></i> Sedang mengimport...';
+
+    fetch('{{ route("campaigns.import-affiliate") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Berhasil mengimport ' + data.count + ' affiliate!');
+            document.getElementById('importAffiliateModal').querySelector('[data-bs-dismiss="modal"]').click();
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'Terjadi kesalahan saat import'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat mengirim file');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="ti ti-upload"></i> Import';
+    });
+});
+
+// Reset form when modal is closed
+document.getElementById('importAffiliateModal').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('importForm').reset();
+});
+</script>
 @endsection

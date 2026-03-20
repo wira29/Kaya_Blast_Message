@@ -18,6 +18,8 @@ Route::get('/home', function() {
 
 Route::middleware('auth')->group(function () {
     Route::resource('brands', BrandController::class);
+    Route::post('campaigns/import-affiliate', [CampaignController::class, 'importAffiliate'])->name('campaigns.import-affiliate');
+    Route::get('campaigns/download-template', [CampaignController::class, 'downloadTemplate'])->name('campaigns.download-template');
     Route::resource('campaigns', CampaignController::class);
     Route::resource('blasts', BlastController::class);
     Route::get('settings/message', [SettingController::class, 'messageSetting'])->name('settings.message');

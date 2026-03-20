@@ -6,6 +6,8 @@ use App\Models\Campaign;
 use App\Models\Brand;
 use App\Models\Affiliate;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class CampaignController extends Controller
 {
@@ -160,5 +162,156 @@ class CampaignController extends Controller
         $campaign->delete();
 
         return redirect()->route('campaigns.index')->with('success', 'Campaign berhasil dihapus');
+    }
+
+    /**
+     * Download template Excel for affiliate import
+     */
+    public function downloadTemplate()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set header
+        $sheet->setCellValue('A1', 'Nama');
+        $sheet->setCellValue('B1', 'Telepon');
+
+        // --- BAGIAN PENTING: SET FORMAT KOLOM B SEBAGAI TEXT ---
+        // Kita set format untuk baris 1 sampai 1000 agar aman
+        $sheet->getStyle('B1:B1000')
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
+        // Add sample data
+        $sheet->setCellValue('A2', 'John Doe');
+
+        // Gunakan setCellValueExplicit agar PHPSpreadsheet tidak menebak tipe datanya
+        $sheet->setCellValueExplicit('B2', '08123456789', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+
+        $sheet->setCellValue('A3', 'Jane Smith');
+        $sheet->setCellValueExplicit('B3', '08987654321', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+
+        // Style header
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'f83f3a']],
+            'alignment' => ['horizontal' => 'center'],
+        ];
+        $sheet->getStyle('A1:B1')->applyFromArray($headerStyle);
+
+        // Set column width
+        $sheet->getColumnDimension('A')->setWidth(30);
+        $sheet->getColumnDimension('B')->setWidth(20);
+
+        // Create temp file
+        $filename = 'Template_Import_Affiliate_' . date('YmdHis') . '.xlsx';
+        $filepath = storage_path('temp/' . $filename);
+
+        if (!file_exists(storage_path('temp'))) {
+            mkdir(storage_path('temp'), 0755, true);
+        }
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save($filepath);
+
+        return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Import affiliates from Excel file
+     */
+    public function importAffiliate(Request $request)
+    {
+        $request->validate([
+            'campaign_id' => 'required|exists:campaigns,id',
+            'excel_file' => 'required|file|mimes:xlsx,xls,csv',
+        ], [
+            'campaign_id.required' => 'Campaign harus dipilih',
+            'excel_file.required' => 'File Excel harus dipilih',
+            'excel_file.mimes' => 'File harus berformat xlsx, xls, atau csv',
+        ]);
+
+        try {
+            $campaign = Campaign::findOrFail($request->campaign_id);
+            $file = $request->file('excel_file');
+
+            // Load Excel file
+            $spreadsheet = IOFactory::load($file->getPathname());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray();
+
+            $count = 0;
+            $errors = [];
+
+            // Skip header row (row 0)
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+
+                // Skip empty rows
+                if (empty($row[0]) && empty($row[1])) {
+                    continue;
+                }
+
+                $name = trim($row[0] ?? '');
+                $phone = trim($row[1] ?? '');
+
+                // Validate data
+                if (empty($name)) {
+                    $errors[] = "Baris " . ($i + 1) . ": Nama tidak boleh kosong";
+                    continue;
+                }
+
+                if (empty($phone)) {
+                    $errors[] = "Baris " . ($i + 1) . ": Telepon tidak boleh kosong";
+                    continue;
+                }
+
+                // Normalize phone number (remove spaces and special characters)
+                $phone = preg_replace('/[^0-9]/', '', $phone);
+
+                // Check if phone already exists in campaign
+                $exists = Affiliate::where('campaign_id', $campaign->id)
+                    ->where('phone', $phone)
+                    ->exists();
+
+                if ($exists) {
+                    continue; // Skip duplicate
+                }
+
+                // Create affiliate
+                try {
+                    Affiliate::create([
+                        'campaign_id' => $campaign->id,
+                        'name' => $name,
+                        'phone' => $phone,
+                    ]);
+                    $count++;
+                } catch (\Exception $e) {
+                    $errors[] = "Baris " . ($i + 1) . ": " . $e->getMessage();
+                }
+            }
+
+            // Prepare response
+            $message = "Berhasil mengimport $count affiliate";
+            if (!empty($errors)) {
+                $message .= ". " . count($errors) . " baris memiliki error: " . implode("; ", array_slice($errors, 0, 3));
+                if (count($errors) > 3) {
+                    $message .= "...";
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'count' => $count,
+                'message' => $message,
+                'errors' => $errors,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error membaca file: ' . $e->getMessage(),
+            ], 422);
+        }
     }
 }
