@@ -13,7 +13,7 @@
   <!-- Core Css -->
   <link rel="stylesheet" href="{{ asset('') }}assets/css/styles.css" />
 
-  <title>Login | Web Pemesanan Tiket</title>
+  <title>Login | Web Kaya</title>
 
   <style>
     /* Primary Color Override - Red Theme */

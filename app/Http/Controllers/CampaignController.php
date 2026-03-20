@@ -303,6 +303,7 @@ class CampaignController extends Controller
                         'campaign_id' => $campaign->id,
                         'name' => $name,
                         'phone' => $phone,
+                        'link' => $link,
                     ]);
                     $count++;
                 } catch (\Exception $e) {
