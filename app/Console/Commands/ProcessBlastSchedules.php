@@ -51,7 +51,7 @@ class ProcessBlastSchedules extends Command
             foreach ($campaign->affiliates as $affiliate) {
                 SendBlastMessage::dispatch($blastHistory->id, $affiliate->phone, $affiliate->name, $campaign->name)
                     ->delay(now()->addSeconds($delaySeconds));
-                $delaySeconds += 15;
+                $delaySeconds += 60;
             }
 
             // Calculate next run time based on frequency
