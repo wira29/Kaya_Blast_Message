@@ -69,9 +69,10 @@
                         <table class="table table-bordered" id="affiliatesTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40%">Nama Afiliator</th>
-                                    <th width="40%">Nomor Telepon</th>
-                                    <th width="20%" class="text-center">Aksi</th>
+                                    <th width="30%">Nama Afiliator</th>
+                                    <th width="30%">Nomor Telepon</th>
+                                    <th width="30%">Link Sosmed</th>
+                                    <th width="10%" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="affiliatesBody">
@@ -117,7 +118,7 @@
         });
     });
 
-    function addAffiliateRow(name = '', phone = '') {
+    function addAffiliateRow(name = '', phone = '', link = '') {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
@@ -127,6 +128,10 @@
             <td>
                 <input type="text" class="form-control" name="affiliates[${affiliateCount}][phone]"
                        placeholder="Nomor telepon" value="${phone}" required>
+            </td>
+            <td>
+                <input type="text" class="form-control" name="affiliates[${affiliateCount}][link]"
+                       placeholder="Link sosmed" value="${link}">
             </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger removeAffiliateBtn">

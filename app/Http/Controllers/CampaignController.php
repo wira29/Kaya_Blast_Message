@@ -58,6 +58,7 @@ class CampaignController extends Controller
             'affiliates' => 'array|min:1',
             'affiliates.*.name' => 'required|string|max:255',
             'affiliates.*.phone' => 'required|string|max:20',
+            'affiliates.*.link' => 'nullable|string',
         ], [
             'brand_id.required' => 'Brand harus dipilih',
             'name.required' => 'Nama campaign harus diisi',
@@ -78,6 +79,7 @@ class CampaignController extends Controller
                 'campaign_id' => $campaign->id,
                 'name' => $affiliate['name'],
                 'phone' => $affiliate['phone'],
+                'link' => $affiliate['link'],
             ]);
         }
 
@@ -107,6 +109,7 @@ class CampaignController extends Controller
             'affiliates.*.id' => 'nullable|exists:affiliates,id',
             'affiliates.*.name' => 'required|string|max:255',
             'affiliates.*.phone' => 'required|string|max:20',
+            'affiliates.*.link' => 'nullable|string',
         ], [
             'brand_id.required' => 'Brand harus dipilih',
             'name.required' => 'Nama campaign harus diisi',
@@ -133,6 +136,7 @@ class CampaignController extends Controller
                 $affiliate->update([
                     'name' => $affiliateData['name'],
                     'phone' => $affiliateData['phone'],
+                    'link' => $affiliateData['link'],
                 ]);
                 $newIds[] = $affiliateData['id'];
             } else {
@@ -175,10 +179,15 @@ class CampaignController extends Controller
         // Set header
         $sheet->setCellValue('A1', 'Nama');
         $sheet->setCellValue('B1', 'Telepon');
+        $sheet->setCellValue('C1', 'Link Sosial Media');
 
         // --- BAGIAN PENTING: SET FORMAT KOLOM B SEBAGAI TEXT ---
         // Kita set format untuk baris 1 sampai 1000 agar aman
-        $sheet->getStyle('B1:B1000')
+        $sheet->getStyle('B1:B5000')
+            ->getNumberFormat()
+            ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
+
+        $sheet->getStyle('C1:C5000')
             ->getNumberFormat()
             ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_TEXT);
 
@@ -187,9 +196,11 @@ class CampaignController extends Controller
 
         // Gunakan setCellValueExplicit agar PHPSpreadsheet tidak menebak tipe datanya
         $sheet->setCellValueExplicit('B2', '08123456789', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit('C2', 'https://www.tiktok.com/@ciboystory/video/7613112697193778450', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
         $sheet->setCellValue('A3', 'Jane Smith');
         $sheet->setCellValueExplicit('B3', '08987654321', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit('C3', 'https://www.tiktok.com/@ciboystory/video/7613112697193778450', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
         // Style header
         $headerStyle = [
@@ -197,11 +208,12 @@ class CampaignController extends Controller
             'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => 'f83f3a']],
             'alignment' => ['horizontal' => 'center'],
         ];
-        $sheet->getStyle('A1:B1')->applyFromArray($headerStyle);
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
 
         // Set column width
-        $sheet->getColumnDimension('A')->setWidth(30);
-        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('A')->setWidth(50);
+        $sheet->getColumnDimension('B')->setWidth(50);
+        $sheet->getColumnDimension('C')->setWidth(50);
 
         // Create temp file
         $filename = 'Template_Import_Affiliate_' . date('YmdHis') . '.xlsx';
@@ -254,6 +266,7 @@ class CampaignController extends Controller
 
                 $name = trim($row[0] ?? '');
                 $phone = trim($row[1] ?? '');
+                $link = trim($row[2] ?? '');
 
                 // Validate data
                 if (empty($name)) {
@@ -275,6 +288,12 @@ class CampaignController extends Controller
                     ->exists();
 
                 if ($exists) {
+                    $affiliate = Affiliate::where('campaign_id', $campaign->id)
+                        ->where('phone', $phone)
+                        ->first();
+                    $affiliate->link = $link;
+                    $affiliate->save();
+
                     continue; // Skip duplicate
                 }
 

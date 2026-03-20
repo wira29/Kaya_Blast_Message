@@ -94,9 +94,9 @@ class BlastController extends Controller
         // Queue the blast message sending
         $delaySeconds = 0;
         foreach ($campaign->affiliates as $affiliate) {
-            SendBlastMessage::dispatch($blastHistory->id, $affiliate->phone)
+            SendBlastMessage::dispatch($blastHistory->id, $affiliate->phone, $affiliate->name, $campaign->name)
                 ->delay(now()->addSeconds($delaySeconds));
-            $delaySeconds += 15; // Add 15 seconds delay between each message
+            $delaySeconds += 60; // Add 15 seconds delay between each message
         }
 
         $message = $request->frequency === 'once'

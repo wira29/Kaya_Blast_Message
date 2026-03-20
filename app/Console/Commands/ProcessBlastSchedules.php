@@ -49,7 +49,7 @@ class ProcessBlastSchedules extends Command
             // Queue messages for all affiliates
             $delaySeconds = 0;
             foreach ($campaign->affiliates as $affiliate) {
-                SendBlastMessage::dispatch($blastHistory->id, $affiliate->phone)
+                SendBlastMessage::dispatch($blastHistory->id, $affiliate->phone, $affiliate->name, $campaign->name)
                     ->delay(now()->addSeconds($delaySeconds));
                 $delaySeconds += 15;
             }

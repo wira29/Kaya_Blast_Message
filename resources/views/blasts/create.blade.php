@@ -70,6 +70,11 @@
                               placeholder="Ketik pesan yang akan dikirim ke semua affiliate"
                               required>{{ old('message_content') }}</textarea>
                     <small class="text-muted">Maksimal 5000 karakter</small>
+                    <small class="text-muted d-block mt-2">
+                        <strong>Variabel yang tersedia:</strong><br>
+                        <code>{campaign}</code> = Nama campaign yang di-blast<br>
+                        <code>{user}</code> = Nama target/affiliate penerima pesan
+                    </small>
                     @error('message_content')
                         <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror

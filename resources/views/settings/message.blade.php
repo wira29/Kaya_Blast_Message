@@ -31,6 +31,17 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
+                <div class="alert alert-info mb-4" role="alert">
+                    <h6 class="alert-heading"><i class="ti ti-info-circle"></i> Variabel Pesan</h6>
+                    <p class="mb-2">Anda dapat menggunakan variabel berikut dalam pesan:</p>
+                    <ul class="mb-0">
+                        <li><code>{campaign}</code> - Akan diganti dengan nama campaign yang di-blast</li>
+                        <li><code>{user}</code> - Akan diganti dengan nama target/affiliate penerima pesan</li>
+                    </ul>
+                    <hr class="my-3">
+                    <p class="mb-0"><strong>Contoh:</strong> "Halo {user}, campaign {campaign} memerlukan tindakan Anda"</p>
+                </div>
+
                 <form action="{{ route('settings.message.update') }}" id="form" method="POST">
                     @csrf
                     @foreach ($messages as $message)

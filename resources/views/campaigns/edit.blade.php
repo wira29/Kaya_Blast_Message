@@ -70,9 +70,10 @@
                         <table class="table table-bordered" id="affiliatesTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="40%">Nama Afiliator</th>
-                                    <th width="40%">Nomor Telepon</th>
-                                    <th width="20%" class="text-center">Aksi</th>
+                                    <th width="30%">Nama Afiliator</th>
+                                    <th width="30%">Nomor Telepon</th>
+                                    <th width="30%">Link Sosmed</th>
+                                    <th width="10%" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="affiliatesBody">
@@ -118,7 +119,7 @@
         });
     });
 
-    function addAffiliateRow(id = '', name = '', phone = '') {
+    function addAffiliateRow(id = '', name = '', phone = '', link = '') {
         const row = document.createElement('tr');
         const idField = id ? `<input type="hidden" name="affiliates[${affiliateCount}][id]" value="${id}">` : '';
 
@@ -131,6 +132,10 @@
             <td>
                 <input type="text" class="form-control" name="affiliates[${affiliateCount}][phone]"
                        placeholder="Nomor telepon" value="${phone}" required>
+            </td>
+            <td>
+                <input type="text" class="form-control" name="affiliates[${affiliateCount}][link]"
+                       placeholder="Link sosmed" value="${link}">
             </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger removeAffiliateBtn">
@@ -167,7 +172,7 @@
             addAffiliateRow();
         } else {
             existingAffiliates.forEach(affiliate => {
-                addAffiliateRow(affiliate.id, affiliate.name, affiliate.phone);
+                addAffiliateRow(affiliate.id, affiliate.name, affiliate.phone, affiliate.link ?? '');
             });
         }
     });

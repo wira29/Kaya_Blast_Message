@@ -14,6 +14,8 @@ class SendBlastMessage implements ShouldQueue
 
     protected $blastHistoryId;
     protected $phoneNumber;
+    protected $affiliateName;
+    protected $campaignName;
 
     /**
      * The number of seconds to wait before retrying the job.
@@ -28,10 +30,12 @@ class SendBlastMessage implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($blastHistoryId, $phoneNumber)
+    public function __construct($blastHistoryId, $phoneNumber, $affiliateName = null, $campaignName = null)
     {
         $this->blastHistoryId = $blastHistoryId;
         $this->phoneNumber = $phoneNumber;
+        $this->affiliateName = $affiliateName;
+        $this->campaignName = $campaignName;
     }
 
     /**
@@ -57,11 +61,22 @@ class SendBlastMessage implements ShouldQueue
         try {
             $phoneNumber = $this->phoneNumber;
             $phoneNumber = preg_replace('/^0/', '62', $phoneNumber);
+
+            // Replace placeholders with actual values
+            $message = $blastHistory->message_content;
+
+            if ($this->campaignName) {
+                $message = str_replace('{campaign}', $this->campaignName, $message);
+            }
+            if ($this->affiliateName) {
+                $message = str_replace('{user}', $this->affiliateName, $message);
+            }
+
             $response = Http::post('https://api.watzap.id/v1/send_message', [
                 'api_key' => $apiKey,
                 'number_key' => $numberKey,
                 'phone_no' => $phoneNumber,
-                'message' => $blastHistory->message_content,
+                'message' => $message,
                 'wait_until_send' => '0',
             ]);
 
