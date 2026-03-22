@@ -93,6 +93,7 @@ class SendBlastMessage implements ShouldQueue
 
         // Update status if all messages processed
         if (($blastHistory->success_count + $blastHistory->failed_count) >= $blastHistory->total_affiliate) {
+            Log::info('Blast message completed for history ID: ' . $this->blastHistoryId);
             $blastHistory->update(['status' => 'completed']);
         } else {
             $blastHistory->update(['status' => 'sending']);
