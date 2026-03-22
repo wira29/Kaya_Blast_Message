@@ -49,6 +49,14 @@
                 <span class="hide-menu">Blast Pesan</span>
               </a>
             </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {{ request()->routeIs('insights.*') ? 'active' : '' }}" href="{{ route('insights.index') }}"  aria-expanded="false">
+                <span>
+                  <i class="ti ti-chart-bar"></i>
+                </span>
+                <span class="hide-menu">Insight Sosmed</span>
+              </a>
+            </li>
 
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-4"></i>

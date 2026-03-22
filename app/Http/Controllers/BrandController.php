@@ -75,12 +75,17 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand)
     {
-        if ($brand->campaigns()->exists()) {
-            return redirect()->route('brands.index')->with('error', 'Tidak dapat menghapus brand yang memiliki campaign');
-        }
+        // Get campaign count before deletion
+        $campaignCount = $brand->campaigns()->count();
 
+        // Delete brand (campaigns will be cascade deleted)
         $brand->delete();
 
-        return redirect()->route('brands.index')->with('success', 'Brand berhasil dihapus');
+        $message = 'Brand berhasil dihapus';
+        if ($campaignCount > 0) {
+            $message .= " (beserta $campaignCount campaign yang terkait)";
+        }
+
+        return redirect()->route('brands.index')->with('success', $message);
     }
 }

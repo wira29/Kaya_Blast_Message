@@ -162,10 +162,30 @@ class CampaignController extends Controller
      */
     public function destroy(Campaign $campaign)
     {
-        $campaign->affiliates()->delete();
+        $affiliateCount = $campaign->affiliates()->count();
+        $blastHistoryCount = $campaign->blastHistories()->count();
+        $blastScheduleCount = $campaign->blastSchedules()->count();
+
         $campaign->delete();
 
-        return redirect()->route('campaigns.index')->with('success', 'Campaign berhasil dihapus');
+        $message = 'Campaign berhasil dihapus';
+        $details = [];
+
+        if ($affiliateCount > 0) {
+            $details[] = "$affiliateCount affiliate";
+        }
+        if ($blastHistoryCount > 0) {
+            $details[] = "$blastHistoryCount blast history";
+        }
+        if ($blastScheduleCount > 0) {
+            $details[] = "$blastScheduleCount blast schedule";
+        }
+
+        if (!empty($details)) {
+            $message .= ' (beserta ' . implode(', ', $details) . ')';
+        }
+
+        return redirect()->route('campaigns.index')->with('success', $message);
     }
 
     /**

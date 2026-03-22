@@ -17,4 +17,14 @@ class Campaign extends Model
     {
         return $this->hasMany(Affiliate::class);
     }
+
+    public function blastHistories()
+    {
+        return $this->hasMany(BlastHistory::class);
+    }
+
+    public function blastSchedules()
+    {
+        return $this->hasMany(BlastSchedule::class);
+    }
 }
