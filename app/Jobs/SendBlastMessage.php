@@ -43,9 +43,11 @@ class SendBlastMessage implements ShouldQueue
      */
     public function handle(): void
     {
+        Log::info('Sending blast message for history ID: ' . $this->blastHistoryId);
         $blastHistory = BlastHistory::find($this->blastHistoryId);
 
         if (!$blastHistory) {
+            Log::warning('Blast history not found');
             return;
         }
 
@@ -81,6 +83,7 @@ class SendBlastMessage implements ShouldQueue
             ]);
 
             if ($response->successful()) {
+                Log::info('Successfully sent message to ' . $this->phoneNumber);
                 $blastHistory->increment('success_count');
             } else {
                 Log::error('Failed to send message to ' . $this->phoneNumber . ': ' . $response->body());
