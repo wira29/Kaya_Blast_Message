@@ -71,6 +71,14 @@
                 <span class="hide-menu">Pengaturan Pesan</span>
               </a>
             </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link {{ request()->routeIs('settings.number-key') ? 'active' : '' }}" href="{{ route('settings.number-key') }}"  aria-expanded="false">
+                <span>
+                  <i class="ti ti-key"></i>
+                </span>
+                <span class="hide-menu">Pengaturan Number Key</span>
+              </a>
+            </li>
           </ul>
         </nav>
 

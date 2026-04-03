@@ -53,6 +53,8 @@ class SendBlastMessage implements ShouldQueue
 
         $apiKey = config('services.watzap.api_key');
         $numberKey = config('services.watzap.number_key');
+        $numberKey2 = config('services.watzap.number_key_2');
+        $numberKey3 = config('services.watzap.number_key_3');
 
         if (empty($apiKey) || empty($numberKey)) {
             Log::warning('WatsApp API credentials not configured');
@@ -74,9 +76,22 @@ class SendBlastMessage implements ShouldQueue
                 $message = str_replace('{user}', $this->affiliateName, $message);
             }
 
+            // Alternate number key every 50 messages
+            $messageCount = $blastHistory->success_count + $blastHistory->failed_count;
+            $keyIndex = intval($messageCount / 50);
+
+            $numberKeys = array_filter([
+                $numberKey,
+                $numberKey2,
+                $numberKey3,
+            ]);
+            $numberKeys = array_values($numberKeys); // Reindex array
+
+            $selectedKey = $numberKeys[$keyIndex % count($numberKeys)];
+
             $response = Http::post('https://api.watzap.id/v1/send_message', [
                 'api_key' => $apiKey,
-                'number_key' => $numberKey,
+                'number_key' => $selectedKey,
                 'phone_no' => $phoneNumber,
                 'message' => $message,
                 'wait_until_send' => '0',

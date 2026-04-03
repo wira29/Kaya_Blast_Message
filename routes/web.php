@@ -27,4 +27,6 @@ Route::middleware('auth')->group(function () {
     Route::post('insights/{brand}/download', [InsightController::class, 'downloadInsight'])->name('insights.download');
     Route::get('settings/message', [SettingController::class, 'messageSetting'])->name('settings.message');
     Route::post('settings/message', [SettingController::class, 'updateMessageSetting'])->name('settings.message.update');
+    Route::get('settings/number-key', [SettingController::class, 'numberKeySetting'])->name('settings.number-key');
+    Route::post('settings/number-key', [SettingController::class, 'updateNumberKeySetting'])->name('settings.number-key.update');
 });

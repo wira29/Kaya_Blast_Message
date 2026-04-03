@@ -49,6 +49,18 @@ class InsightController extends Controller
                 })
                 ->toArray();
 
+            // Check if there are any links at all
+            $totalLinks = array_sum(array_map(function ($campaign) {
+                return count($campaign['links']);
+            }, $campaigns));
+
+            if ($totalLinks === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada link yang ditemukan untuk brand ini'
+                ], 400);
+            }
+
             // Send data to external API and get Excel file as response
             $response = Http::post('https://scraper.bagaskara.web.id/scrape', [
                 'name' => $brand->name,
