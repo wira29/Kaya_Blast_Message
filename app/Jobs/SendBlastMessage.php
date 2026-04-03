@@ -78,7 +78,7 @@ class SendBlastMessage implements ShouldQueue
 
             // Alternate number key every 50 messages
             $messageCount = $blastHistory->success_count + $blastHistory->failed_count;
-            $keyIndex = intval($messageCount / 50);
+            $keyIndex = intval($messageCount / 1);
 
             $numberKeys = array_filter([
                 $numberKey,
