@@ -83,6 +83,7 @@ class SettingController extends Controller
         try {
             Artisan::call('config:clear');
             Artisan::call('config:cache');
+            Artisan::call('queue:restart');
         } catch (\Exception $e) {
             throw new \Exception('Gagal menjalankan artisan commands: ' . $e->getMessage());
         }
