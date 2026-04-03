@@ -40,6 +40,7 @@ class SettingController extends Controller
             'number_key_1' => 'required|string|min:3',
             'number_key_2' => 'nullable|string|min:3',
             'number_key_3' => 'nullable|string|min:3',
+            'change_number' => 'required|integer|min:1|max:10000',
         ]);
 
         try {
@@ -47,6 +48,7 @@ class SettingController extends Controller
                 'WATZAP_NUMBER_KEY' => $request->number_key_1,
                 'WATZAP_NUMBER_KEY_2' => $request->number_key_2 ?? '',
                 'WATZAP_NUMBER_KEY_3' => $request->number_key_3 ?? '',
+                'WATZAP_CHANGE_NUMBER' => $request->change_number,
             ]);
 
             return redirect()->route('settings.number-key')->with('success', 'Pengaturan Number Key berhasil disimpan');

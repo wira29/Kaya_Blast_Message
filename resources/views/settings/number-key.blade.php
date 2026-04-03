@@ -33,8 +33,9 @@
             <div class="card-body">
                 <div class="alert alert-info mb-4" role="alert">
                     <h6 class="alert-heading"><i class="ti ti-info-circle"></i> Cara Kerja</h6>
-                    <p class="mb-2">Setiap 50 pesan akan menggunakan number key yang berbeda:</p>
+                    <p class="mb-2">Sistem akan berganti number key setiap kali mencapai jumlah pesan yang sudah ditentukan:</p>
                     <ul class="mb-0">
+                        <li><strong>Contoh dengan 50 pesan:</strong></li>
                         <li><strong>Pesan 0-49:</strong> Menggunakan Number Key 1</li>
                         <li><strong>Pesan 50-99:</strong> Menggunakan Number Key 2</li>
                         <li><strong>Pesan 100-149:</strong> Menggunakan Number Key 3</li>
@@ -91,6 +92,26 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="form-text text-muted">Kunci WhatsApp ketiga (tidak wajib, jika kosong hanya Key 1 dan 2 yang digunakan)</small>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="form-group mb-3">
+                        <label for="change_number" class="form-label">Jumlah Pesan Sebelum Berganti Key</label>
+                        <input
+                            type="number"
+                            class="form-control @error('change_number') is-invalid @enderror"
+                            id="change_number"
+                            name="change_number"
+                            value="{{ old('change_number', config('services.watzap.change_number', 50)) }}"
+                            placeholder="Contoh: 50"
+                            min="1"
+                            max="10000"
+                        >
+                        @error('change_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted">Setiap berapa pesan sistem akan berganti ke number key berikutnya (default: 50)</small>
                     </div>
 
                 </form>

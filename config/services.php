@@ -40,6 +40,7 @@ return [
         'number_key' => env('WATZAP_NUMBER_KEY', ''),
         'number_key_2' => env('WATZAP_NUMBER_KEY_2', ''),
         'number_key_3' => env('WATZAP_NUMBER_KEY_3', ''),
+        'change_number' => env('WATZAP_CHANGE_NUMBER', 50),
     ],
 
 ];
